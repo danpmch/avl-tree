@@ -67,6 +67,18 @@ let rotate_right_left = function
       Tree(b, hb, Tree(a, ha, al, bl), Tree(c, hc, br, cr))
  | _ -> failwith "Error, unexpected tree configuration for rotate right left"
 
+ (*
+let rec insert' tree x = match tree with
+   Empty -> new_tree x
+ | Tree(e, _, left, right) ->
+       if x = e then tree
+       else if x < e then
+          match left with
+             Empty ->
+                Tree(e, _, new_tree x, right)
+       else
+          *)
+
 let rec insert tree x = match tree with
    Empty -> new_tree x
  | Tree(e, _, Empty, Empty) as node ->
@@ -112,4 +124,69 @@ let rec insert tree x = match tree with
                 rotate_left newNode
           else newNode
  | _ -> failwith "Error, unexpected tree configuration during insert"
+
+let make_tree list = List.fold_left insert Empty list
+
+let single_insert =
+  match make_tree [1] with
+    Tree(1, 1, Empty, Empty) -> ()
+  | _ -> failwith "Error: single insert failed"
+
+let double_insert =
+  match make_tree [1; 2] with
+    Tree(1, 2, Empty, Tree(2, 1, Empty, Empty)) -> ()
+  | _ -> failwith "Error: double insert failed"
+
+let insert_left_rotation =
+  match make_tree [1; 2; 3] with
+    Tree(2, 2, Tree(1, 1, Empty, Empty),
+               Tree(3, 1, Empty, Empty)) -> ()
+  | _ -> failwith "Error: insert left rotation failed"
+
+let insert_right_rotation =
+  match make_tree [3; 2; 1] with
+    Tree(2, 2, Tree(1, 1, Empty, Empty),
+               Tree(3, 1, Empty, Empty)) -> ()
+  | _ -> failwith "Error: insert right rotation failed"
+
+let insert_left_right_rotation =
+  match make_tree [3; 1; 2] with
+    Tree(2, 2, Tree(1, 1, Empty, Empty),
+               Tree(3, 1, Empty, Empty)) -> ()
+  | _ -> failwith "Error: insert left right rotation failed"
+
+let insert_right_left_rotation =
+  match make_tree [1; 3; 2] with
+    Tree(2, 2, Tree(1, 1, Empty, Empty),
+               Tree(3, 1, Empty, Empty)) -> ()
+  | _ -> failwith "Error: insert right left rotation failed"
+
+let insert_deep_left_rotation =
+  match make_tree [1; 2; 3; 4; 5] with
+    Tree(2, 3, Tree(1, 1, Empty, Empty),
+               Tree(4, 2, Tree(3, 1, Empty, Empty),
+                          Tree(5, 1, Empty, Empty))) -> ()
+  | _ -> failwith "Error: insert deep left rotation failed"
+
+let insert_deep_right_left_rotation =
+  match make_tree [1; 2; 3; 5; 4] with
+    Tree(2, 3, Tree(1, 1, Empty, Empty),
+               Tree(4, 2, Tree(3, 1, Empty, Empty),
+                          Tree(5, 1, Empty, Empty))) -> ()
+  | _ -> failwith "Error: insert deep right left rotation failed"
+
+let insert_deep_right_rotation =
+  match make_tree [5; 4; 3; 2; 1] with
+    Tree(4, 3, Tree(2, 2, Tree(1, 1, Empty, Empty),
+                          Tree(3, 1, Empty, Empty)),
+               Tree(5, 1, Empty, Empty)) -> ()
+  | _ -> failwith "Error: insert deep right rotation failed"
+
+let insert_deep_left_right_rotation =
+  match make_tree [5; 4; 3; 1; 2] with
+    Tree(4, 3, Tree(2, 2, Tree(1, 1, Empty, Empty),
+                          Tree(3, 1, Empty, Empty)),
+               Tree(5, 1, Empty, Empty)) -> ()
+  | _ -> failwith "Error: insert deep right rotation failed"
+
 
