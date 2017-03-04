@@ -67,63 +67,44 @@ let rotate_right_left = function
       Tree(b, hb, Tree(a, ha, al, bl), Tree(c, hc, br, cr))
  | _ -> failwith "Error, unexpected tree configuration for rotate right left"
 
- (*
-let rec insert' tree x = match tree with
+let rec insert tree x = match tree with
    Empty -> new_tree x
  | Tree(e, _, left, right) ->
        if x = e then tree
        else if x < e then
+          let hr = get_height right in
           match left with
-             Empty ->
-                Tree(e, _, new_tree x, right)
+            Empty ->
+               let newH = 1 + (max 1 hr) in
+               Tree(e, newH, new_tree x, right)
+          | Tree(l, _, _, _) ->
+             let newLeft = insert left x in
+             let newHl = get_height newLeft in
+             let newNode = Tree(e, 1 + (max newHl hr), newLeft, right) in
+             let newB = get_balance newNode in
+             if newB < -1 then
+                if x < l then
+                   rotate_right newNode
+                else
+                   rotate_left_right newNode
+             else newNode
        else
-          *)
-
-let rec insert tree x = match tree with
-   Empty -> new_tree x
- | Tree(e, _, Empty, Empty) as node ->
-       if x = e then node
-       else if x < e then Tree(e, 2, new_tree x, Empty)
-       else Tree(e, 2, Empty, new_tree x)
- | Tree(e, b, Empty, (Tree(r, _, Empty, Empty) as right)) as node ->
-       if x = e then node
-       else if x < e then Tree(e, 2, new_tree x, right)
-       else if r < x then Tree(r, 2, new_tree e, new_tree x)
-       else Tree(x, 2, new_tree e, new_tree r)
- | Tree(e, b,
-        (Tree(l, _, Empty, Empty) as left),
-        Empty) as node ->
-       if x = e then node
-       else if e < x then Tree(e, 2, left, new_tree x)
-       else if x < l then Tree(l, 2, new_tree x, new_tree e)
-       else Tree(x, 2, new_tree l, new_tree e)
- | Tree(e, _,
-        (Tree(l, hl, _, _) as left),
-        (Tree(r, hr, _, _) as right)) as node ->
-       if x = e || x = l || x = r then node
-       else if x < e then
-          let newLeft = insert left x in
-          let newHl = get_height newLeft in
-          let newNode = Tree(e, 1 + (max newHl hr), newLeft, right) in
-          let newB = get_balance newNode in
-          if newB < -1 then
-             if x < l then
-                rotate_right newNode
-             else
-                rotate_left_right newNode
-          else newNode
-       else
-          let newRight = insert right x in
-          let newHr = get_height newRight in
-          let newNode = Tree(e, 1 + (max hl newHr), left, newRight) in
-          let newB = get_balance newNode in
-          if newB > 1 then
-             if x < r then
-                rotate_right_left newNode
-             else
-                rotate_left newNode
-          else newNode
- | _ -> failwith "Error, unexpected tree configuration during insert"
+          let hl = get_height left in
+          match right with
+            Empty ->
+               let newH = 1 + (max hl 1) in
+               Tree(e, newH, left, new_tree x)
+          | Tree(r, _, _, _) ->
+             let newRight = insert right x in
+             let newHr = get_height newRight in
+             let newNode = Tree(e, 1 + (max hl newHr), left, newRight) in
+             let newB = get_balance newNode in
+             if newB > 1 then
+                if x < r then
+                   rotate_right_left newNode
+                else
+                   rotate_left newNode
+             else newNode
 
 let make_tree list = List.fold_left insert Empty list
 
