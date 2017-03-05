@@ -1,0 +1,18 @@
+OASISFormat: 0.4
+Name: Avltree
+Version: 0.1
+Synopsis: Simple implementation of an AVL tree
+Authors: Dan McHenry <danpmch@gmail.com>
+License: GPL
+BuildTools: ocamlbuild
+Plugins: META (0.4), DevFiles(0.4)
+
+Description: This was a project that defeated me in college, now I shall defeat it.
+
+Executable "avltree"
+  Path: src
+  MainIs: avltree.ml
+  BuildDepends:
+    batteries
+
+
