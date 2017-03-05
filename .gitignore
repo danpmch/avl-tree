@@ -2,4 +2,8 @@
 *.sw*
 a.out
 *.cm*
+_build
+*.byte
+setup.data
+setup.log
 
