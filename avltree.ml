@@ -11,6 +11,10 @@ let get_balance = function
    Empty -> 0
  | Tree (_, _, l, r) -> -(get_height l) + (get_height r)
 
+let is_unbalanced tree =
+   let balance = get_balance tree in
+   balance < -1 || 1 < balance
+
 let new_tree x = Tree(x, 1, Empty, Empty)
 
 let rec find tree x = match tree with
@@ -105,6 +109,83 @@ let rec insert tree x = match tree with
                 else
                    rotate_left newNode
              else newNode
+
+let rebalance tree =
+   let balance = get_balance tree in
+   if balance < -1 then
+      match tree with
+         Tree(_, h, Tree(_, hl, ll, lr), _) ->
+            let hll = get_height ll in
+            let hlr = get_height lr in
+            if hll >= hlr then
+               rotate_right tree
+            else
+               rotate_left_right tree
+      | _ -> failwith "Invalid tree shape"
+   else if 1 < balance then
+      match tree with
+         Tree(_, h, _, Tree(_, hr, rl, rr)) ->
+            let hrl = get_height rl in
+            let hrr = get_height rr in
+            if hrl <= hrr then
+               rotate_left tree
+            else
+               rotate_right_left tree
+      | _ -> failwith "Invalid tree shape"
+   else tree
+
+(* insert function for unbalanced binary search tree, useful for testing
+ * the rebalance function *)
+let rec dumb_insert tree x = match tree with
+   Empty -> new_tree x
+ | Tree(e, h, left, right) ->
+       if e = x then tree
+       else if e < x then
+          let newRight = dumb_insert right x in
+          let newHeight = 1 + (max (get_height left) (get_height newRight)) in
+          Tree(e, newHeight, left, newRight)
+       else
+          let newLeft = dumb_insert left x in
+          let newHeight = 1 + (max (get_height newLeft) (get_height right)) in
+          Tree(e, newHeight, newLeft, right)
+
+let make_dumb_tree list = List.fold_left dumb_insert Empty list
+
+let rec extractMin tree = match tree with
+   Empty -> failwith "Error, called extractMin on empty tree"
+ | Tree(e, h, Empty, right) -> (right, e)
+ | Tree(e, h, left, right) ->
+       let (newLeft, min) = extractMin left in
+       let newHeight = 1 + (max (get_height newLeft) (get_height right)) in
+       let newNode = Tree(e, newHeight, newLeft, right) in
+       if is_unbalanced newNode then
+          (rebalance newNode, min)
+       else
+          (newNode, min)
+
+let rec delete tree x = match tree with
+   Empty -> tree
+ | Tree(e, h, left, right) ->
+       let newNode =
+          if e = x then
+             match right with
+               Empty -> left
+             | _ ->
+                let (newRight, min) = extractMin right in
+                let newHeight = 1 + (max (get_height left) (get_height newRight)) in
+                Tree(min, newHeight, left, newRight)
+          else if e < x then
+             let newRight = delete right x in
+             let newHeight = 1 + (max (get_height left) (get_height newRight)) in
+             Tree(e, newHeight, left, newRight)
+          else
+             let newLeft = delete left x in
+             let newHeight = 1 + (max (get_height newLeft) (get_height right)) in
+             Tree(e, newHeight, newLeft, right)
+       in
+       if is_unbalanced newNode then
+          rebalance newNode
+       else newNode
 
 let make_tree list = List.fold_left insert Empty list
 
