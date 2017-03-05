@@ -15,4 +15,22 @@ Executable "avltree"
   BuildDepends:
     batteries
 
+Library "avltree"
+  Path: src
+  Modules: Avltree
+  BuildDepends: batteries
+
+Executable "test_avltree"
+  Path: test
+  MainIs: test.ml
+  Build$: flag(tests)
+  Install: false
+  BuildDepends: avltree, oUnit
+
+Test "test_avltree"
+  Run$: flag(tests)
+  TestTools: test_avltree
+  Command: $test_avltree
+  WorkingDirectory: test
+
 

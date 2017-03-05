@@ -4,6 +4,7 @@ a.out
 *.cm*
 _build
 *.byte
+*.native
 setup.data
 setup.log
 
