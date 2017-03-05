@@ -1,4 +1,6 @@
 
+open Batteries
+
 type height = int
 type 'a avl_tree = Empty
                  | Tree of 'a * height * 'a avl_tree * 'a avl_tree
@@ -20,18 +22,12 @@ let new_tree x = Tree(x, 1, Empty, Empty)
 let rec find tree x = match tree with
    Empty -> None
  | Tree (e, _, left, right) as node -> if e = x then Some node
-                                       else if e < x then find left x
-                                       else find right x
-
-(* this function is in the standard library, but I'm having some standard library
- * woes at the moment *)
-let is_some = function
-   None -> false
- | _ -> true
+                                       else if e < x then find right x
+                                       else find left x
 
 let rec member tree x =
    let node = find tree x in
-   is_some node
+   Option.is_some node
 
 let rotate_left = function
    Tree(x, h, t1,
