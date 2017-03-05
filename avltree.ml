@@ -114,20 +114,18 @@ let rebalance tree =
    let balance = get_balance tree in
    if balance < -1 then
       match tree with
-         Tree(_, h, Tree(_, hl, ll, lr), _) ->
-            let hll = get_height ll in
-            let hlr = get_height lr in
-            if hll >= hlr then
+         Tree(_, _, left, _) ->
+            let bl = get_balance left in
+            if bl <= 0 then
                rotate_right tree
             else
                rotate_left_right tree
       | _ -> failwith "Invalid tree shape"
    else if 1 < balance then
       match tree with
-         Tree(_, h, _, Tree(_, hr, rl, rr)) ->
-            let hrl = get_height rl in
-            let hrr = get_height rr in
-            if hrl <= hrr then
+         Tree(_, _, _, right) ->
+            let br = get_balance right in
+            if br >= 0 then
                rotate_left tree
             else
                rotate_right_left tree
