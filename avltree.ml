@@ -71,45 +71,6 @@ let rotate_right_left = function
       Tree(b, hb, Tree(a, ha, al, bl), Tree(c, hc, br, cr))
  | _ -> failwith "Error, unexpected tree configuration for rotate right left"
 
-let rec insert tree x = match tree with
-   Empty -> new_tree x
- | Tree(e, _, left, right) ->
-       if x = e then tree
-       else if x < e then
-          let hr = get_height right in
-          match left with
-            Empty ->
-               let newH = 1 + (max 1 hr) in
-               Tree(e, newH, new_tree x, right)
-          | Tree(l, _, _, _) ->
-             let newLeft = insert left x in
-             let newHl = get_height newLeft in
-             let newNode = Tree(e, 1 + (max newHl hr), newLeft, right) in
-             let newB = get_balance newNode in
-             if newB < -1 then
-                if x < l then
-                   rotate_right newNode
-                else
-                   rotate_left_right newNode
-             else newNode
-       else
-          let hl = get_height left in
-          match right with
-            Empty ->
-               let newH = 1 + (max hl 1) in
-               Tree(e, newH, left, new_tree x)
-          | Tree(r, _, _, _) ->
-             let newRight = insert right x in
-             let newHr = get_height newRight in
-             let newNode = Tree(e, 1 + (max hl newHr), left, newRight) in
-             let newB = get_balance newNode in
-             if newB > 1 then
-                if x < r then
-                   rotate_right_left newNode
-                else
-                   rotate_left newNode
-             else newNode
-
 let rebalance tree =
    let balance = get_balance tree in
    if balance < -1 then
@@ -131,6 +92,26 @@ let rebalance tree =
                rotate_right_left tree
       | _ -> failwith "Invalid tree shape"
    else tree
+
+let rec insert tree x = match tree with
+   Empty -> new_tree x
+ | Tree(e, _, left, right) ->
+       let newNode =
+          if x = e then tree
+          else if x < e then
+             let newLeft = insert left x in
+             let newHl = get_height newLeft in
+             let hr = get_height right in
+             Tree(e, 1 + (max newHl hr), newLeft, right)
+          else
+             let newRight = insert right x in
+             let newHr = get_height newRight in
+             let hl = get_height left in
+             Tree(e, 1 + (max hl newHr), left, newRight)
+       in
+       if is_unbalanced newNode then
+          rebalance newNode
+       else newNode
 
 (* insert function for unbalanced binary search tree, useful for testing
  * the rebalance function *)
