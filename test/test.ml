@@ -67,6 +67,13 @@ let testable_list_to_bool = testable_fun arb_list show_arb_list testable_bool
 
 let check_list = quickCheck testable_list_to_bool
 
+let delete_func = function
+   [] -> true
+ | list ->
+      let toDelete = List.nth list (Random.int (List.length list)) in
+      prop_balanced (delete (make_tree list) toDelete)
+
 let () =
-   let _ = check_list (fun list -> prop_balanced (make_tree list)) in ()
+   let _ = check_list (fun list -> prop_balanced (make_tree list)) in ();
+   let _ = check_list (fun list -> delete_func list) in ();
 
