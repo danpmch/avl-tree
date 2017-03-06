@@ -25,7 +25,7 @@ Executable "test_avltree"
   MainIs: test.ml
   Build$: flag(tests)
   Install: false
-  BuildDepends: avltree, oUnit
+  BuildDepends: avltree, oUnit, quickcheck
 
 Test "test_avltree"
   Run$: flag(tests)

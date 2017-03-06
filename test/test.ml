@@ -1,5 +1,6 @@
 
 open OUnit2
+open QuickCheck
 open Avltree
 
 let basic_member_test test_ctxt =
@@ -51,4 +52,21 @@ let insert_suite = "insert_suite" >:::
 let () =
    run_test_tt_main member_suite;
    run_test_tt_main insert_suite
+
+let rec prop_balanced tree = match tree with
+   Empty -> true
+ | Tree(_, _, left, right) ->
+       (not (is_unbalanced tree)) &&
+       prop_balanced left &&
+       prop_balanced right
+
+let arb_list = arbitrary_list arbitrary_int
+let show_arb_list = show_list show_int
+
+let testable_list_to_bool = testable_fun arb_list show_arb_list testable_bool
+
+let check_list = quickCheck testable_list_to_bool
+
+let () =
+   let _ = check_list (fun list -> prop_balanced (make_tree list)) in ()
 
