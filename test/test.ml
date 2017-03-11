@@ -60,6 +60,18 @@ let rec prop_balanced tree = match tree with
        prop_balanced left &&
        prop_balanced right
 
+let rec prop_ordered = function
+   Empty -> true
+ | Tree(x, _, left, right) ->
+       let leftLess =
+          match left with
+             Tree(l, _, _, _) -> l <= x
+          | _ -> true in
+       let rightMore = match right with
+             Tree(r, _, _, _) -> x <= r
+          | _ -> true in
+       leftLess && rightMore && (prop_ordered left) && (prop_ordered right)
+
 let arb_list = arbitrary_list arbitrary_int
 let show_arb_list = show_list show_int
 
@@ -68,12 +80,14 @@ let testable_list_to_bool = testable_fun arb_list show_arb_list testable_bool
 let check_list = quickCheck testable_list_to_bool
 
 let delete_func = function
-   [] -> true
+   [] -> Empty
  | list ->
-      let toDelete = List.nth list (Random.int (List.length list)) in
-      prop_balanced (delete (make_tree list) toDelete)
+   let toDelete = List.nth list (Random.int (List.length list)) in
+   delete (make_tree list) toDelete
 
 let () =
    let _ = check_list (fun list -> prop_balanced (make_tree list)) in ();
-   let _ = check_list (fun list -> delete_func list) in ();
+   let _ = check_list (fun list -> prop_ordered (make_tree list)) in ();
+   let _ = check_list (fun list -> prop_balanced (delete_func list)) in ();
+   let _ = check_list (fun list -> prop_ordered (delete_func list)) in ();
 
