@@ -52,7 +52,9 @@ let rotate_right = function
  | _ -> failwith "Error, unexpected tree configuration for rotate right"
 
 let rotate_left_right = function
-   Tree(c, hc, Tree(a, ha, al, Tree(b, hb, bl, br)), cr) ->
+   Tree(c, hc, Tree(a, ha, al,
+                           Tree(b, hb, bl, br)),
+               cr) ->
       let ha' = 1 + (max (get_height al) (get_height br)) in
       let hc' = 1 + (max (get_height bl) (get_height cr)) in
       let hb' = 1 + (max ha' hc') in
@@ -60,22 +62,33 @@ let rotate_left_right = function
  | _ -> failwith "Error, unexpected tree configuration for rotate left right"
 
 let rotate_right_left = function
-   Tree(a, _, al, Tree(c, _, Tree(b, _, bl, br), cr)) ->
+   Tree(a, _, al,
+              Tree(c, _, Tree(b, _, bl, br),
+                         cr)) ->
       let ha = 1 + (max (get_height al) (get_height bl)) in
       let hc = 1 + (max (get_height br) (get_height cr)) in
       let hb = 1 + (max ha hc) in
       Tree(b, hb, Tree(a, ha, al, bl), Tree(c, hc, br, cr))
  | _ -> failwith "Error, unexpected tree configuration for rotate right left"
 
+(* Assuming a single insert/delete operation has been performed on the input node,
+ * rebalances that node, NOT the entire tree rooted at the input node. Intended to
+ * be applied to a tree bottom-to-top following insert/delete to restore the balance
+ * invariant *)
 let rebalance tree =
    let balance = get_balance tree in
    if balance < -1 then
+      (* this node is too deep to the left, need to rotate right *)
       match tree with
          Tree(_, _, left, _) ->
             let bl = get_balance left in
             if bl <= 0 then
+               (* left child is also deeper to the left, so a simple right
+                * rotation will do *)
                rotate_right tree
             else
+               (* Left child is deeper to the right. We need to rotate it left
+                * so that rotating this node right will be effective *)
                rotate_left_right tree
       | _ -> failwith "Invalid tree shape"
    else if 1 < balance then
